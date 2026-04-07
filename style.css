@@ -17,7 +17,7 @@ html, body {
    PORTFOLIO STYLE NAVIGATION
    ============================================ */
 .navbar {
-    position: fixed;
+    position: sticky-top;
     top: 0;
     left: 0;
     width: 100%;
