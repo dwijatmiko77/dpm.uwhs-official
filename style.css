@@ -714,12 +714,14 @@ section {
 }
 
 .social-links {
+    align-item: center;
     display: flex;
     gap: 1rem;
     margin-top: 2rem;
 }
 
 .social-item {
+    margin: 1rem;
     width: 55px;
     height: 55px;
     border-radius: 16px;
