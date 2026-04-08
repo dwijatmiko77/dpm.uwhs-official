@@ -1,14 +1,14 @@
 // ==========================================
-// NAVIGATION LOGIC
+// NAVIGATION FIXED LOGIC
 // ==========================================
 
+const navbar = document.getElementById('navbar');
 const navToggle = document.getElementById('navToggle');
 const navMenu = document.getElementById('navMenu');
 const navOverlay = document.getElementById('navOverlay');
-const navLinks = document.querySelectorAll('.nav-menu a');
-const navbar = document.getElementById('navbar');
+const navLinks = document.querySelectorAll('.nav-link');
 
-// Toggle menu
+// Toggle Mobile Menu
 navToggle.addEventListener('click', () => {
     const isOpen = navMenu.classList.contains('active');
     
@@ -16,10 +16,11 @@ navToggle.addEventListener('click', () => {
     navMenu.classList.toggle('active');
     navOverlay.classList.toggle('active');
     
+    // Prevent body scroll when menu open
     document.body.style.overflow = isOpen ? '' : 'hidden';
 });
 
-// Close menu function
+// Close Menu Function
 const closeMenu = () => {
     navToggle.classList.remove('active');
     navMenu.classList.remove('active');
@@ -27,21 +28,29 @@ const closeMenu = () => {
     document.body.style.overflow = '';
 };
 
-// Close menu when clicking links
+// Close menu when clicking overlay
+navOverlay.addEventListener('click', closeMenu);
+
+// Close menu and smooth scroll when clicking links
 navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
         closeMenu();
         
-        setTimeout(() => {
-            const target = document.querySelector(link.getAttribute('href'));
-            if(target) target.scrollIntoView({ behavior: 'smooth' });
-        }, 300);
+        const targetId = link.getAttribute('href');
+        const target = document.querySelector(targetId);
+        
+        if(target) {
+            setTimeout(() => {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }, 300);
+        }
+        
+        // Update active link
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
     });
 });
-
-// Close menu when clicking overlay
-navOverlay.addEventListener('click', closeMenu);
 
 // Close menu on Escape key
 document.addEventListener('keydown', (e) => {
@@ -51,7 +60,38 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ==========================================
-// REPEATABLE SCROLL ANIMATIONS (MIRROR EFFECT)
+// NAVBAR SCROLL EFFECT
+// ==========================================
+
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 100) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+    
+    // Update active nav link based on scroll position
+    const sections = document.querySelectorAll('section');
+    let current = '';
+    
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (scrollY >= (sectionTop - 200)) {
+            current = section.getAttribute('id');
+        }
+    });
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+            link.classList.add('active');
+        }
+    });
+});
+
+// ==========================================
+// SCROLL ANIMATIONS (REPEATABLE)
 // ==========================================
 
 const observerOptions = {
@@ -62,32 +102,16 @@ const observerOptions = {
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            // Element masuk viewport (scroll down) -> Tambah class visible
             entry.target.classList.add('visible');
         } else {
-            // Element keluar viewport (scroll up) -> Hapus class visible agar animasi bisa berulang
             entry.target.classList.remove('visible');
         }
     });
 }, observerOptions);
 
 // Observe all animated elements
-document.querySelectorAll('.animate-on-scroll, .slide-left, .slide-right, .slide-up, .scale-in').forEach((el) => {
+document.querySelectorAll('.animate-on-scroll, .slide-left, .slide-right, .slide-up, .scale-in').forEach(el => {
     observer.observe(el);
-});
-
-// ==========================================
-// NAVBAR BACKGROUND CHANGE ON SCROLL
-// ==========================================
-
-window.addEventListener('scroll', () => {
-    if (window.pageYOffset > 100) {
-        navbar.style.background = 'rgba(10, 10, 10, 0.95)';
-        navbar.style.padding = '1rem 5%';
-    } else {
-        navbar.style.background = 'rgba(10, 10, 10, 0.8)';
-        navbar.style.padding = '1.5rem 5%';
-    }
 });
 
 // ==========================================
@@ -96,6 +120,14 @@ window.addEventListener('scroll', () => {
 
 document.getElementById('contactForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    alert('Terima kasih! Pesan Anda telah terkirim.');
+    
+    // Get form data
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    
+    // Show success message
+    alert('Terima kasih! Pesan Anda telah terkirim.\n\nNama: ' + data.nama + '\nEmail: ' + data.email);
+    
+    // Reset form
     e.target.reset();
 });
